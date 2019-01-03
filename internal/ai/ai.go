@@ -2,6 +2,7 @@ package ai
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 
 	"github.com/ozhi/tetris-ai/internal/tetris"
@@ -10,7 +11,7 @@ import (
 type AI struct {
 	board *tetris.Board
 
-	current tetris.Tetromino
+	nextTetromino tetris.Tetromino
 }
 
 func New() *AI {
@@ -22,9 +23,75 @@ func New() *AI {
 func (ai *AI) Board() *tetris.Board {
 	return ai.board
 }
+func (ai *AI) DropSetNext(next tetris.Tetromino) error {
+	if ai.nextTetromino == tetris.TetrominoEmpty {
+		ai.nextTetromino = next
+		return nil
+	}
+
+	if ai.board.GameOver() {
+		panic(fmt.Errorf("AI.DropSetNext: can not drop, game is over"))
+	}
+
+	type Move struct {
+		rotation int
+		column   int
+	}
+
+	var (
+		bestEval  = -10000.0
+		bestMoves []Move
+	)
+
+	for curRot := 0; curRot < ai.nextTetromino.RotationsCount(); curRot++ {
+		for curCol := 0; curCol < ai.board.Width(); curCol++ {
+			curMove := Move{
+				rotation: curRot,
+				column:   curCol,
+			}
+
+			curBoard := tetris.NewBoardFromBoard(ai.board)
+			if err := curBoard.Drop(ai.nextTetromino, curRot, curCol); err != nil {
+				// Column is invalid.
+				continue
+			}
+
+			for nextRot := 0; nextRot < next.RotationsCount(); nextRot++ {
+				for nextCol := 0; nextCol < ai.board.Width(); nextCol++ {
+					nextBoard := tetris.NewBoardFromBoard(curBoard)
+					if err := nextBoard.Drop(next, nextRot, nextCol); err != nil {
+						// Column is invalid.
+						continue
+					}
+
+					eval := evaluate(nextBoard, 0)
+					if eval > bestEval {
+						bestEval = eval
+						bestMoves = []Move{curMove}
+					} else if eval == bestEval {
+						bestMoves = append(bestMoves, curMove)
+					}
+				}
+			}
+		}
+	}
+
+	if len(bestMoves) == 0 {
+		return fmt.Errorf("AI.DRopSetNext: can not drop tetromino %d", ai.nextTetromino)
+	}
+
+	move := bestMoves[rand.Intn(len(bestMoves))]
+	if err := ai.board.Drop(ai.nextTetromino, move.rotation, move.column); err != nil {
+		return fmt.Errorf("AI.Drop: could not drop: %s", err)
+	}
+
+	ai.nextTetromino = next
+
+	return nil
+}
 
 func evaluate(board *tetris.Board, depth int) float64 {
-	const inf = 10000.0
+	const inf = 1e5
 	if depth < 0 {
 		panic("dai polojitelna dalbochina we")
 	}
@@ -57,72 +124,6 @@ func evaluate(board *tetris.Board, depth int) float64 {
 	return minEval
 }
 
-func (ai *AI) Drop(tetromino tetris.Tetromino) error {
-	if ai.board.GameOver() {
-		panic(fmt.Errorf("game is over we"))
-	}
-
-	type Move struct {
-		rotation int
-		column   int
-	}
-
-	var (
-		bestEval  = -10000.0
-		bestMoves []Move
-	)
-
-	for rotation := 0; rotation < tetromino.RotationsCount(); rotation++ {
-		for column := 0; column < ai.board.Width(); column++ {
-			newBoard := tetris.NewBoardFromBoard(ai.board)
-			if err := newBoard.Drop(tetromino, rotation, column); err != nil {
-				// column is invalid.
-				continue
-			}
-
-			eval := evaluate(newBoard, 1)
-			if eval > bestEval {
-				bestEval = eval
-				bestMoves = []Move{
-					Move{
-						rotation: rotation,
-						column:   column,
-					},
-				}
-			} else if eval == bestEval {
-				bestMoves = append(bestMoves, Move{
-					rotation: rotation,
-					column:   column,
-				})
-			}
-		}
-	}
-
-	if len(bestMoves) == 0 {
-		bestMoves = []Move{Move{rotation: 0, column: 0}} // will lose
-	}
-
-	move := bestMoves[rand.Intn(len(bestMoves))]
-
-	if err := ai.board.Drop(tetromino, move.rotation, move.column); err != nil {
-		return fmt.Errorf("AI.Drop: could not drop: %s", err)
-	}
-
-	return nil
-}
-
-func (ai *AI) SetCurrent(current tetris.Tetromino) {
-	ai.current = current
-}
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-
-	return x
-}
-
 func utility(board *tetris.Board) float64 {
 	if board.GameOver() {
 		return -1e5
@@ -141,7 +142,7 @@ func utility(board *tetris.Board) float64 {
 		heightsSum += columnHeights[col]
 		holes += columnHoles[col]
 		if col != 0 {
-			heightsDiff += abs(columnHeights[col] - columnHeights[col-1])
+			heightsDiff += int(math.Abs(float64(columnHeights[col] - columnHeights[col-1])))
 		}
 	}
 

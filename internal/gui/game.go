@@ -193,18 +193,21 @@ func (g *Game) draw(screen *ebiten.Image) {
 }
 
 func (g *Game) dropRandomTetrominoes() {
-	// g.fillBoard()
 	g.nextTetromino = tetris.Tetromino(1 + rand.Intn(7))
 
-	for !g.ai.Board().GameOver() {
-		time.Sleep(1000 * time.Millisecond)
-		g.ai.Drop(g.nextTetromino)
+	for {
+		// time.Sleep(100 * time.Millisecond)
+
+		if err := g.ai.DropSetNext(g.nextTetromino); err != nil {
+			fmt.Printf("Can not drop tetromino %d", g.nextTetromino)
+			break
+		}
 		g.nextTetromino = tetris.Tetromino(1 + rand.Intn(7))
 		fmt.Printf("Dropped tetrominoes: %d, Cleared lines: %d\n", g.ai.Board().DroppedTetrominoes(), g.ai.Board().ClearedLines())
 	}
 }
 
-func (g *Game) fillBoard() {
+/* func (g *Game) fillBoard() {
 	for _, offset := range []int{0, 1, 2, 1, 0, 1, 2, 1, 0} {
 		for _, col := range []int{0, 2, 4, 6} {
 			time.Sleep(50 * time.Millisecond)
@@ -216,7 +219,7 @@ func (g *Game) fillBoard() {
 		time.Sleep(1000 * time.Millisecond)
 		g.ai.Drop(tetromino)
 	}
-}
+} */
 
 func loadTetrominoColors() map[tetris.Tetromino]color.Color {
 	return map[tetris.Tetromino]color.Color{
