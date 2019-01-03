@@ -3,12 +3,17 @@ package gui
 import (
 	"fmt"
 	"image/color"
+	"log"
 	"math/rand"
 	"time"
 
+	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/examples/resources/fonts"
+	"github.com/hajimehoshi/ebiten/text"
 	"github.com/ozhi/tetris-ai/internal/ai"
 	"github.com/ozhi/tetris-ai/internal/tetris"
+	"golang.org/x/image/font"
 )
 
 const (
@@ -29,12 +34,25 @@ var (
 	boardBackground         = color.RGBA{14, 17, 17, 255}
 	boardBackgroundGameOver = color.RGBA{255, 255, 255, 255}
 	sidebarBackground       = color.RGBA{14, 17, 17, 255}
+
+	mplusNormalFont font.Face
 )
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	tetrominoColors = loadTetrominoColors()
 	tetrominoMatrices = loadTetrominoMatrices()
+
+	tt, err := truetype.Parse(fonts.MPlus1pRegular_ttf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	mplusNormalFont = truetype.NewFace(tt, &truetype.Options{
+		Size:    10,
+		DPI:     72,
+		Hinting: font.HintingFull,
+	})
 }
 
 // document if zero value of structs is usable
@@ -161,22 +179,12 @@ func (g *Game) getInfoImage() *ebiten.Image {
 	image, _ := ebiten.NewImage(4*cellSize+10, 4*cellSize+10, ebiten.FilterDefault)
 	image.Fill(sidebarBackground)
 
-	cell, _ := ebiten.NewImage(cellSize-1, cellSize-1, ebiten.FilterDefault)
-	cell.Fill(tetrominoColors[g.nextTetromino])
-	cellOptions := ebiten.DrawImageOptions{}
+	droppedTetrominoes := fmt.Sprintf("Tetrominoes: %d", g.ai.Board().DroppedTetrominoes())
+	text.Draw(image, droppedTetrominoes, mplusNormalFont, 10, 50, color.RGBA{200, 200, 200, 255})
 
-	tetromino := tetrominoMatrices[g.nextTetromino]
-	for row := range tetromino {
-		for col := range tetromino[row] {
-			if tetromino[row][col] {
-				cellOptions.GeoM.Reset()
-				cellOptions.GeoM.Translate(float64(col*cellSize), float64(row*cellSize))
-				_ = image.DrawImage(cell, &cellOptions)
-			}
-		}
-	}
+	clearedLines := fmt.Sprintf("Lines: %d", g.ai.Board().ClearedLines())
+	text.Draw(image, clearedLines, mplusNormalFont, 10, 70, color.RGBA{200, 200, 200, 255})
 
-	cell.Dispose()
 	return image
 }
 
@@ -188,8 +196,14 @@ func (g *Game) draw(screen *ebiten.Image) {
 	nextTetrominoOptions.GeoM.Reset()
 	nextTetrominoOptions.GeoM.Translate(10*cellSize, 0)
 	_ = screen.DrawImage(nextTetromino, &nextTetrominoOptions)
-
 	nextTetromino.Dispose()
+
+	info := g.getInfoImage()
+	infoOptions := ebiten.DrawImageOptions{}
+	infoOptions.GeoM.Reset()
+	infoOptions.GeoM.Translate(10*cellSize, 4*cellSize+10)
+	_ = screen.DrawImage(info, &infoOptions)
+	info.Dispose()
 }
 
 func (g *Game) dropRandomTetrominoes() {
