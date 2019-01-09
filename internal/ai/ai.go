@@ -8,6 +8,11 @@ import (
 	"github.com/ozhi/tetris-ai/internal/tetris"
 )
 
+const (
+	minUtility = -float64(1e5)
+	maxUtility = float64(1e5)
+)
+
 type AI struct {
 	board *tetris.Board
 
@@ -23,6 +28,7 @@ func New() *AI {
 func (ai *AI) Board() *tetris.Board {
 	return ai.board
 }
+
 func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 	if ai.nextTetromino == tetris.TetrominoEmpty {
 		ai.nextTetromino = next
@@ -38,8 +44,9 @@ func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 		column   int
 	}
 
+	const evaluationDepth = 1
 	var (
-		bestEval  = -10000.0
+		bestEval  = minUtility - 1
 		bestMoves []Move
 	)
 
@@ -64,7 +71,7 @@ func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 						continue
 					}
 
-					eval := evaluate(nextBoard, 0)
+					eval := evaluate(nextBoard, evaluationDepth, bestEval, maxUtility)
 					if eval > bestEval {
 						bestEval = eval
 						bestMoves = []Move{curMove}
@@ -90,19 +97,18 @@ func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 	return nil
 }
 
-func evaluate(board *tetris.Board, depth int) float64 {
-	const inf = 1e5
+func evaluate(board *tetris.Board, depth int, alpha, beta float64) float64 {
 	if depth < 0 {
-		panic("dai polojitelna dalbochina we")
+		panic("evaluate: depth should be nonnegative")
 	}
 
 	if depth == 0 || board.GameOver() {
 		return utility(board)
 	}
 
-	minEval := inf
+	minEval := maxUtility + 1
 	for tetromino := tetris.Tetromino(1); tetromino <= tetris.Tetromino(tetris.TetrominoesCount); tetromino++ {
-		maxEval := -inf
+		maxEval := minUtility - 1
 		for rotation := 0; rotation < tetromino.RotationsCount(); rotation++ {
 			for column := 0; column < board.Width(); column++ {
 				newBoard := tetris.NewBoardFromBoard(board)
@@ -111,22 +117,28 @@ func evaluate(board *tetris.Board, depth int) float64 {
 					continue
 				}
 
-				if eval := evaluate(newBoard, depth-1); eval > maxEval {
-					maxEval = eval
+				eval := evaluate(newBoard, depth-1, alpha, beta)
+				maxEval = math.Max(maxEval, eval)
+				alpha = math.Min(alpha, maxEval)
+				if alpha > beta {
+					break
 				}
 			}
 		}
 
-		if maxEval < minEval {
-			minEval = maxEval
+		minEval = math.Min(minEval, maxEval)
+		beta = math.Min(beta, minEval)
+		if alpha > beta {
+			break
 		}
 	}
 	return minEval
 }
 
+// bigger is better
 func utility(board *tetris.Board) float64 {
 	if board.GameOver() {
-		return -1e5
+		return minUtility
 	}
 
 	var (
@@ -151,8 +163,8 @@ func utility(board *tetris.Board) float64 {
 		-0.35663*float64(holes) +
 		-0.184483*float64(heightsDiff)
 
-	if board.GameOver() {
-		utility -= 1e4
+	if utility < minUtility || utility > maxUtility {
+		panic(fmt.Errorf("Invalid utility %f returned", utility))
 	}
 
 	return utility
