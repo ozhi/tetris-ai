@@ -64,142 +64,113 @@ func loadTetrominoMatrices() [][]tetrominoMatrix {
 		// I
 		{
 			{
-				[]bool{true, false, false, false},
-				[]bool{true, false, false, false},
-				[]bool{true, false, false, false},
-				[]bool{true, false, false, false},
+				[]bool{true},
+				[]bool{true},
+				[]bool{true},
+				[]bool{true},
 			},
 			{
 				[]bool{true, true, true, true},
-				[]bool{false, false, false, false},
-				[]bool{false, false, false, false},
-				[]bool{false, false, false, false},
 			},
 		},
 
 		// J
 		{
 			{
-				[]bool{false, true, false, false},
-				[]bool{false, true, false, false},
-				[]bool{true, true, false, false},
-				[]bool{false, false, false, false},
+				[]bool{false, true},
+				[]bool{false, true},
+				[]bool{true, true},
 			},
 			{
-				[]bool{true, false, false, false},
-				[]bool{true, true, true, false},
-				[]bool{false, false, false, false},
-				[]bool{false, false, false, false},
+				[]bool{true, false, false},
+				[]bool{true, true, true},
 			},
 			{
-				[]bool{true, true, false, false},
-				[]bool{true, false, false, false},
-				[]bool{true, false, false, false},
-				[]bool{false, false, false, false},
+				[]bool{true, true},
+				[]bool{true, false},
+				[]bool{true, false},
 			},
 			{
-				[]bool{true, true, true, false},
-				[]bool{false, false, true, false},
-				[]bool{false, false, false, false},
-				[]bool{false, false, false, false},
+				[]bool{true, true, true},
+				[]bool{false, false, true},
 			},
 		},
 
 		// L
 		{
 			{
-				[]bool{true, false, false, false},
-				[]bool{true, false, false, false},
-				[]bool{true, true, false, false},
-				[]bool{false, false, false, false},
+				[]bool{true, false},
+				[]bool{true, false},
+				[]bool{true, true},
 			},
 			{
-				[]bool{true, true, true, false},
-				[]bool{true, false, false, false},
-				[]bool{false, false, false, false},
-				[]bool{false, false, false, false},
+				[]bool{true, true, true},
+				[]bool{true, false, false},
 			},
 			{
-				[]bool{true, true, false, false},
-				[]bool{false, true, false, false},
-				[]bool{false, true, false, false},
-				[]bool{false, false, false, false},
+				[]bool{true, true},
+				[]bool{false, true},
+				[]bool{false, true},
 			},
 			{
-				[]bool{false, false, true, false},
-				[]bool{true, true, true, false},
-				[]bool{false, false, false, false},
-				[]bool{false, false, false, false},
+				[]bool{false, false, true},
+				[]bool{true, true, true},
 			},
 		},
 
 		// O
 		{
 			{
-				[]bool{true, true, false, false},
-				[]bool{true, true, false, false},
-				[]bool{false, false, false, false},
-				[]bool{false, false, false, false},
+				[]bool{true, true},
+				[]bool{true, true},
 			},
 		},
 
 		// S
 		{
 			{
-				[]bool{false, true, true, false},
-				[]bool{true, true, false, false},
-				[]bool{false, false, false, false},
-				[]bool{false, false, false, false},
+				[]bool{false, true, true},
+				[]bool{true, true, false},
 			},
 			{
-				[]bool{true, false, false, false},
-				[]bool{true, true, false, false},
-				[]bool{false, true, false, false},
-				[]bool{false, false, false, false},
+				[]bool{true, false},
+				[]bool{true, true},
+				[]bool{false, true},
 			},
 		},
 
 		// T
 		{
 			{
-				[]bool{true, true, true, false},
-				[]bool{false, true, false, false},
-				[]bool{false, false, false, false},
-				[]bool{false, false, false, false},
+				[]bool{true, true, true},
+				[]bool{false, true, false},
 			},
 			{
-				[]bool{false, true, false, false},
-				[]bool{true, true, false, false},
-				[]bool{false, true, false, false},
-				[]bool{false, false, false, false},
+				[]bool{false, true},
+				[]bool{true, true},
+				[]bool{false, true},
 			},
 			{
-				[]bool{false, true, false, false},
-				[]bool{true, true, true, false},
-				[]bool{false, false, false, false},
-				[]bool{false, false, false, false},
+				[]bool{false, true, false},
+				[]bool{true, true, true},
 			},
 			{
-				[]bool{true, false, false, false},
-				[]bool{true, true, false, false},
-				[]bool{true, false, false, false},
-				[]bool{false, false, false, false},
+				[]bool{true, false},
+				[]bool{true, true},
+				[]bool{true, false},
 			},
 		},
 
 		// Z
 		{
 			{
-				[]bool{true, true, false, false},
-				[]bool{false, true, true, false},
-				[]bool{false, false, false, false},
-				[]bool{false, false, false, false},
+				[]bool{true, true, false},
+				[]bool{false, true, true},
 			},
 			{
-				[]bool{false, true, false, false},
-				[]bool{true, true, false, false},
-				[]bool{true, false, false, false},
-				[]bool{false, false, false, false},
+				[]bool{false, true},
+				[]bool{true, true},
+				[]bool{true, false},
 			},
 		},
 	}

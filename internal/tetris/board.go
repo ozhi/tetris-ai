@@ -111,12 +111,14 @@ func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
 	}
 
 	if b.gameOver {
+		// TODO: panic
 		return fmt.Errorf("Board.Drop: can not drop: game is over")
 	}
 
 	tetrominoMatrix := tetrominoMatrices[tetromino][rotation]
 
 	if !b.isValidColumn(column, tetrominoMatrix) {
+		// TODO panic
 		return fmt.Errorf(
 			"Board.Drop: can not drop: invalid column %d provided for tetromino %d, rotation %d",
 			column, tetromino, rotation,
@@ -135,6 +137,7 @@ func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
 			}
 		}
 		return nil
+		// TODO panic
 		// return fmt.Errorf("Board.Drop: tetromino dropped, game is over")
 	}
 
