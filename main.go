@@ -7,15 +7,15 @@ import (
 	"github.com/ozhi/tetris-ai/internal/gui"
 )
 
-var noGUI bool
+var useCli bool
 
 func init() {
-	flag.BoolVar(&noGUI, "nogui", false, "should a graphical user interface be used")
+	flag.BoolVar(&useCli, "cli", false, "should the command-line interface be used")
 	flag.Parse()
 }
 
 func main() {
-	if noGUI {
+	if useCli {
 		cli.NewGame().Start()
 		return
 	}
