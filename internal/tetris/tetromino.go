@@ -1,6 +1,9 @@
 package tetris
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+)
 
 const TetrominoesCount = 7
 
@@ -17,8 +20,25 @@ const (
 	TetrominoZ
 )
 
-func (t Tetromino) IsValid() bool {
-	return 0 <= t && t <= TetrominoesCount
+func Tetrominoes() []Tetromino {
+	return []Tetromino{
+		TetrominoI,
+		TetrominoJ,
+		TetrominoL,
+		TetrominoO,
+		TetrominoS,
+		TetrominoT,
+		TetrominoZ,
+	}
+}
+
+func RandomTetromino() Tetromino {
+	tetrominoes := Tetrominoes()
+	return tetrominoes[rand.Intn(TetrominoesCount)]
+}
+
+func (t Tetromino) IsNonEmpty() bool {
+	return 1 <= t && t <= TetrominoesCount
 }
 
 func (t Tetromino) RotationsCount() int {
@@ -36,21 +56,20 @@ func (t Tetromino) RotationsCount() int {
 
 type tetrominoMatrix [][]bool
 
-// todo make this a map[TetrominoInstance]tetrominoMatrix
 func loadTetrominoMatrices() [][]tetrominoMatrix {
 	return [][]tetrominoMatrix{
 		// Empty
-		[]tetrominoMatrix{},
+		{},
 
 		// I
-		[]tetrominoMatrix{
-			tetrominoMatrix{
+		{
+			{
 				[]bool{true, false, false, false},
 				[]bool{true, false, false, false},
 				[]bool{true, false, false, false},
 				[]bool{true, false, false, false},
 			},
-			tetrominoMatrix{
+			{
 				[]bool{true, true, true, true},
 				[]bool{false, false, false, false},
 				[]bool{false, false, false, false},
@@ -59,26 +78,26 @@ func loadTetrominoMatrices() [][]tetrominoMatrix {
 		},
 
 		// J
-		[]tetrominoMatrix{
-			tetrominoMatrix{
+		{
+			{
 				[]bool{false, true, false, false},
 				[]bool{false, true, false, false},
 				[]bool{true, true, false, false},
 				[]bool{false, false, false, false},
 			},
-			tetrominoMatrix{
+			{
 				[]bool{true, false, false, false},
 				[]bool{true, true, true, false},
 				[]bool{false, false, false, false},
 				[]bool{false, false, false, false},
 			},
-			tetrominoMatrix{
+			{
 				[]bool{true, true, false, false},
 				[]bool{true, false, false, false},
 				[]bool{true, false, false, false},
 				[]bool{false, false, false, false},
 			},
-			tetrominoMatrix{
+			{
 				[]bool{true, true, true, false},
 				[]bool{false, false, true, false},
 				[]bool{false, false, false, false},
@@ -87,26 +106,26 @@ func loadTetrominoMatrices() [][]tetrominoMatrix {
 		},
 
 		// L
-		[]tetrominoMatrix{
-			tetrominoMatrix{
+		{
+			{
 				[]bool{true, false, false, false},
 				[]bool{true, false, false, false},
 				[]bool{true, true, false, false},
 				[]bool{false, false, false, false},
 			},
-			tetrominoMatrix{
+			{
 				[]bool{true, true, true, false},
 				[]bool{true, false, false, false},
 				[]bool{false, false, false, false},
 				[]bool{false, false, false, false},
 			},
-			tetrominoMatrix{
+			{
 				[]bool{true, true, false, false},
 				[]bool{false, true, false, false},
 				[]bool{false, true, false, false},
 				[]bool{false, false, false, false},
 			},
-			tetrominoMatrix{
+			{
 				[]bool{false, false, true, false},
 				[]bool{true, true, true, false},
 				[]bool{false, false, false, false},
@@ -115,8 +134,8 @@ func loadTetrominoMatrices() [][]tetrominoMatrix {
 		},
 
 		// O
-		[]tetrominoMatrix{
-			tetrominoMatrix{
+		{
+			{
 				[]bool{true, true, false, false},
 				[]bool{true, true, false, false},
 				[]bool{false, false, false, false},
@@ -125,14 +144,14 @@ func loadTetrominoMatrices() [][]tetrominoMatrix {
 		},
 
 		// S
-		[]tetrominoMatrix{
-			tetrominoMatrix{
+		{
+			{
 				[]bool{false, true, true, false},
 				[]bool{true, true, false, false},
 				[]bool{false, false, false, false},
 				[]bool{false, false, false, false},
 			},
-			tetrominoMatrix{
+			{
 				[]bool{true, false, false, false},
 				[]bool{true, true, false, false},
 				[]bool{false, true, false, false},
@@ -141,26 +160,26 @@ func loadTetrominoMatrices() [][]tetrominoMatrix {
 		},
 
 		// T
-		[]tetrominoMatrix{
-			tetrominoMatrix{
+		{
+			{
 				[]bool{true, true, true, false},
 				[]bool{false, true, false, false},
 				[]bool{false, false, false, false},
 				[]bool{false, false, false, false},
 			},
-			tetrominoMatrix{
+			{
 				[]bool{false, true, false, false},
 				[]bool{true, true, false, false},
 				[]bool{false, true, false, false},
 				[]bool{false, false, false, false},
 			},
-			tetrominoMatrix{
+			{
 				[]bool{false, true, false, false},
 				[]bool{true, true, true, false},
 				[]bool{false, false, false, false},
 				[]bool{false, false, false, false},
 			},
-			tetrominoMatrix{
+			{
 				[]bool{true, false, false, false},
 				[]bool{true, true, false, false},
 				[]bool{true, false, false, false},
@@ -169,14 +188,14 @@ func loadTetrominoMatrices() [][]tetrominoMatrix {
 		},
 
 		// Z
-		[]tetrominoMatrix{
-			tetrominoMatrix{
+		{
+			{
 				[]bool{true, true, false, false},
 				[]bool{false, true, true, false},
 				[]bool{false, false, false, false},
 				[]bool{false, false, false, false},
 			},
-			tetrominoMatrix{
+			{
 				[]bool{false, true, false, false},
 				[]bool{true, true, false, false},
 				[]bool{true, false, false, false},

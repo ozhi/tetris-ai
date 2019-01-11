@@ -207,7 +207,7 @@ func (g *Game) draw(screen *ebiten.Image) {
 }
 
 func (g *Game) dropRandomTetrominoes() {
-	g.nextTetromino = tetris.Tetromino(1 + rand.Intn(7))
+	g.nextTetromino = tetris.RandomTetromino()
 
 	for {
 		// time.Sleep(100 * time.Millisecond)
@@ -216,7 +216,8 @@ func (g *Game) dropRandomTetrominoes() {
 			fmt.Printf("Can not drop tetromino %d", g.nextTetromino)
 			break
 		}
-		g.nextTetromino = tetris.Tetromino(1 + rand.Intn(7))
+		g.nextTetromino = tetris.RandomTetromino()
+
 		fmt.Printf("Dropped tetrominoes: %d, Cleared lines: %d\n", g.ai.Board().DroppedTetrominoes(), g.ai.Board().ClearedLines())
 	}
 }

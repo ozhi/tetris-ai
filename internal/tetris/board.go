@@ -99,7 +99,7 @@ func (b *Board) At(row, col int) Tetromino {
 }
 
 func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
-	if !tetromino.IsValid() || tetromino == TetrominoEmpty {
+	if !tetromino.IsNonEmpty() {
 		panic(fmt.Errorf("Board.Drop: invalid tetromino %d provided", tetromino))
 	}
 

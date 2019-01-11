@@ -52,7 +52,7 @@ type Move struct {
 
 func randMove() *Move {
 	move := Move{
-		tetromino: tetris.Tetromino(1 + rand.Intn(7)),
+		tetromino: tetris.RandomTetromino(),
 	}
 
 	var possibleRotations int

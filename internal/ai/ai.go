@@ -107,7 +107,7 @@ func evaluate(board *tetris.Board, depth int, alpha, beta float64) float64 {
 	}
 
 	minEval := maxUtility + 1
-	for tetromino := tetris.Tetromino(1); tetromino <= tetris.Tetromino(tetris.TetrominoesCount); tetromino++ {
+	for _, tetromino := range tetris.Tetrominoes() {
 		maxEval := minUtility - 1
 		for rotation := 0; rotation < tetromino.RotationsCount(); rotation++ {
 			for column := 0; column < board.Width(); column++ {
