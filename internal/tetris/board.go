@@ -99,13 +99,13 @@ func (b *Board) At(row, col int) Tetromino {
 }
 
 func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
-	if !tetromino.IsNonEmpty() {
+	if !tetromino.NotEmpty() {
 		panic(fmt.Errorf("Board.Drop: invalid tetromino %d provided", tetromino))
 	}
 
 	if rotation < 0 || rotation >= tetromino.RotationsCount() {
 		panic(fmt.Errorf(
-			"Board.Drop: invalid rotation %d provided for tetromino %d",
+			"Board.Drop: invalid rotation %d provided for tetromino %s",
 			rotation, tetromino,
 		))
 	}
@@ -120,7 +120,7 @@ func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
 	if !b.isValidColumn(column, tetrominoMatrix) {
 		// TODO panic
 		return fmt.Errorf(
-			"Board.Drop: can not drop: invalid column %d provided for tetromino %d, rotation %d",
+			"Board.Drop: can not drop: invalid column %d provided for tetromino %s, rotation %d",
 			column, tetromino, rotation,
 		)
 	}
