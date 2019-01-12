@@ -37,6 +37,29 @@ func RandomTetromino() Tetromino {
 	return tetrominoes[rand.Intn(TetrominoesCount)]
 }
 
+func (t Tetromino) String() string {
+	switch t {
+	case TetrominoEmpty:
+		return "Empty"
+	case TetrominoI:
+		return "I"
+	case TetrominoJ:
+		return "J"
+	case TetrominoL:
+		return "L"
+	case TetrominoO:
+		return "O"
+	case TetrominoS:
+		return "S"
+	case TetrominoT:
+		return "T"
+	case TetrominoZ:
+		return "Z"
+	default:
+		panic(fmt.Errorf("Tetromno.String: invalid tetromino %d provided", t))
+	}
+}
+
 func (t Tetromino) IsNonEmpty() bool {
 	return 1 <= t && t <= TetrominoesCount
 }

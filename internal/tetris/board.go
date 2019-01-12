@@ -157,16 +157,12 @@ func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
 		}
 	}
 
-	linesCleared := false
-	for i := row; i < row+len(tetrominoMatrix); i++ {
-		linesCleared = linesCleared || b.clearLineIfFull(i)
-	}
-
 	b.droppedTetrominoes++
+	someRowsCleared := b.clearFullRows()
 
 	fromCol := 0
 	toCol := b.width
-	if !linesCleared {
+	if !someRowsCleared {
 		fromCol = column
 		toCol = column + len(tetrominoMatrix[0])
 	}
@@ -209,34 +205,44 @@ func (b *Board) isValidCell(row, col int) bool {
 		0 <= col && col < b.width
 }
 
-func (b *Board) clearLineIfFull(line int) bool {
-	if line < 0 || line >= b.height {
-		return false
-	}
-
-	lineIsFull := true
-	for col := range b.cells[line] {
-		if b.cells[line][col] == TetrominoEmpty {
-			lineIsFull = false
-			break
+func (b *Board) isFullRow(row int) bool {
+	for _, cell := range b.cells[row] {
+		if cell == TetrominoEmpty {
+			return false
 		}
 	}
-
-	if !lineIsFull {
-		return false
-	}
-
-	for row := line; row >= 1; row-- {
-		for col := range b.cells[row] {
-			b.cells[row][col] = b.cells[row-1][col]
-		}
-	}
-	for col := range b.cells[0] {
-		b.cells[0][col] = TetrominoEmpty
-	}
-
-	b.clearedLines++
 	return true
+}
+
+func (b *Board) clearFullRows() bool {
+	var (
+		someRowsCleared = false
+		idxFrom         = b.height - 1
+		idxTo           = b.height - 1
+	)
+	for idxTo >= 0 {
+		if idxFrom < 0 {
+			// Insert a new empty rows.
+			b.cells[idxTo] = make([]Tetromino, b.width)
+			idxTo--
+			continue
+		}
+
+		if b.isFullRow(idxFrom) {
+			// Full rows are cleared.
+			b.clearedLines++
+			someRowsCleared = true
+			idxFrom--
+			continue
+		}
+
+		// Non-full rows are just moved down.
+		b.cells[idxTo] = b.cells[idxFrom]
+		idxFrom--
+		idxTo--
+	}
+
+	return someRowsCleared
 }
 
 func (b *Board) isValidColumn(column int, tetrominoMatrix tetrominoMatrix) bool {

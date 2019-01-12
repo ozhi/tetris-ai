@@ -7,6 +7,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	Empty = tetris.TetrominoEmpty
+	I     = tetris.TetrominoI
+	J     = tetris.TetrominoJ
+	L     = tetris.TetrominoL
+	O     = tetris.TetrominoO
+	S     = tetris.TetrominoS
+	T     = tetris.TetrominoT
+	Z     = tetris.TetrominoZ
+)
+
 type Move struct {
 	tetromino tetris.Tetromino
 	rotation  int
@@ -99,19 +110,31 @@ func TestBoardDropPanicsOnInvalidRotation(t *testing.T) {
 	}
 }
 
-func TestBoardDrop(t *testing.T) {
+func TestBoardDropClearesMultipleLines(t *testing.T) {
 	board := tetris.NewBoard()
 	moves := []Move{
-		{tetromino: tetris.TetrominoJ, rotation: 2, column: 1},
-		{tetromino: tetris.TetrominoJ, rotation: 2, column: 2},
-		{tetromino: tetris.TetrominoJ, rotation: 2, column: 3},
-		{tetromino: tetris.TetrominoJ, rotation: 2, column: 4},
-		{tetromino: tetris.TetrominoJ, rotation: 2, column: 5},
-		{tetromino: tetris.TetrominoJ, rotation: 2, column: 6},
+		{tetromino: tetris.TetrominoJ, rotation: 1, column: 0},
+		{tetromino: tetris.TetrominoL, rotation: 3, column: 3},
+		{tetromino: tetris.TetrominoZ, rotation: 0, column: 0},
+		{tetromino: tetris.TetrominoT, rotation: 2, column: 2},
+		{tetromino: tetris.TetrominoL, rotation: 2, column: 5},
+		{tetromino: tetris.TetrominoO, rotation: 0, column: 7},
+		{tetromino: tetris.TetrominoZ, rotation: 0, column: 6},
+		{tetromino: tetris.TetrominoI, rotation: 0, column: 9},
 	}
 	for _, move := range moves {
 		board.Drop(move.tetromino, move.rotation, move.column)
+	}
 
+	expected18 := []tetris.Tetromino{Empty, Empty, Empty, T, Empty, Empty, Z, Z, Empty, I}
+	expected19 := []tetris.Tetromino{J, Z, Z, Empty, Empty, L, L, O, O, I}
+
+	for col := 0; col < board.Width(); col++ {
+		for row := 0; row <= 17; row++ {
+			assert.Equal(t, Empty, board.At(row, col))
+		}
+		assert.Equal(t, expected18[col], board.At(18, col))
+		assert.Equal(t, expected19[col], board.At(19, col))
 	}
 }
 
@@ -142,6 +165,28 @@ func TestBoardAtPanicsOnInvalidCoordinates(t *testing.T) {
 			board.At(test.row, test.col)
 		})
 	}
+}
+
+func TestBoardAtNumbersCellsFromTopLeft(t *testing.T) {
+	board := tetris.NewBoard()
+	board.Drop(I, 0, 4)
+	board.Drop(L, 3, 3)
+
+	assert.Equal(t, I, board.At(19, 4))
+	assert.Equal(t, I, board.At(18, 4))
+	assert.Equal(t, I, board.At(17, 4))
+	assert.Equal(t, I, board.At(16, 4))
+
+	assert.Equal(t, L, board.At(15, 3))
+	assert.Equal(t, L, board.At(15, 4))
+	assert.Equal(t, L, board.At(15, 5))
+	assert.Equal(t, L, board.At(14, 5))
+
+	assert.Equal(t, Empty, board.At(0, 0))
+	assert.Equal(t, Empty, board.At(19, 9))
+	assert.Equal(t, Empty, board.At(18, 3))
+	assert.Equal(t, Empty, board.At(14, 4))
+	assert.Equal(t, Empty, board.At(15, 6))
 }
 
 // func clearLineMoves() []Move {
