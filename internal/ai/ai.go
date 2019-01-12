@@ -8,31 +8,56 @@ import (
 	"github.com/ozhi/tetris-ai/internal/tetris"
 )
 
+// minUtility and maxUtility define the boundaries of AI's evaluation function.
+// The methods utility and evaluate must ony return values in range [minUtility; MaxUtility].
 const (
-	minUtility = -float64(1e5)
-	maxUtility = float64(1e5)
+	minUtility      = -float64(1e5)
+	maxUtility      = float64(1e5)
+	evaluationDepth = 1
 )
 
+// AI encapsulates the artificial intelligence logic.
+// AI has a reference to a tetris board and the next tetromino that should be dropped.
+// By searching the space of potential boards, AI chooses how to rotate and where to drop each tetromino.
+// AI uses the minimax algorithm with alpha beta pruning and a utility function.
+// The zero value of AI is not usable, method New should be used to create a struct.
 type AI struct {
-	board *tetris.Board
-
-	nextTetromino tetris.Tetromino
+	board    *tetris.Board
+	next     tetris.Tetromino
+	matrices [][]tetris.TetrominoMatrix
 }
 
+// New returns a pointer to a new AI struct.
 func New() *AI {
 	return &AI{
-		board: tetris.NewBoard(),
+		board:    tetris.NewBoard(),
+		matrices: tetris.TetrominoMatrices(),
 	}
 }
 
+// Board returns a pointer to the AI's board.
 func (ai *AI) Board() *tetris.Board {
 	return ai.board
 }
 
+// SetNext sets the next tetromino to be dropped by the AI.
+// SetNext is usually only called once, before dropping the first tetromino.
+// SetNext overwrites if a next tetromino is already set.
+// SetNext panics if an empty or invalid tetromino is provided.
+func (ai *AI) SetNext(next tetris.Tetromino) {
+	if !next.Valid() {
+		panic(fmt.Errorf("Ai.SetNext: invalid tetromino %d provided", next))
+	}
+	ai.next = next
+}
+
+// DropSetNext drops the next tetromino and sets the given tetromino as next.
+// The given next tetromino is taken into consideration.
+// DropSetNext panics if the given tetromino is empty or not valid.
+// DropSetNext panics if the board is already i game over state. // TODO board should not have such a state.
 func (ai *AI) DropSetNext(next tetris.Tetromino) error {
-	if ai.nextTetromino == tetris.TetrominoEmpty {
-		ai.nextTetromino = next
-		return nil
+	if !next.Valid() {
+		panic(fmt.Errorf("Ai.DropSetNext: invalid tetromino %d provided", next))
 	}
 
 	if ai.board.GameOver() {
@@ -44,34 +69,39 @@ func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 		column   int
 	}
 
-	const evaluationDepth = 1
 	var (
 		bestEval  = minUtility - 1
 		bestMoves []Move
 	)
 
-	for curRot := 0; curRot < ai.nextTetromino.RotationsCount(); curRot++ {
-		for curCol := 0; curCol < ai.board.Width(); curCol++ {
+	for curRot := 0; curRot < ai.next.RotationsCount(); curRot++ {
+		curWidth := len(ai.matrices[ai.next][curRot][0])
+		for curCol := 0; curCol <= ai.board.Width()-curWidth; curCol++ {
 			curMove := Move{
 				rotation: curRot,
 				column:   curCol,
 			}
 
 			curBoard := tetris.NewBoardFromBoard(ai.board)
-			if err := curBoard.Drop(ai.nextTetromino, curRot, curCol); err != nil {
-				// Column is invalid.
+			if err := curBoard.Drop(ai.next, curRot, curCol); err != nil {
+				// Column is invalid?
+				// TODO board.drop will not return error anymore.
+				fmt.Println(err)
 				continue
 			}
 
 			for nextRot := 0; nextRot < next.RotationsCount(); nextRot++ {
-				for nextCol := 0; nextCol < ai.board.Width(); nextCol++ {
+				nextWidth := len(ai.matrices[next][nextRot][0])
+				for nextCol := 0; nextCol <= ai.board.Width()-nextWidth; nextCol++ {
 					nextBoard := tetris.NewBoardFromBoard(curBoard)
 					if err := nextBoard.Drop(next, nextRot, nextCol); err != nil {
-						// Column is invalid.
+						// Column is invalid?
+						// TODO board.drop will not return error anymore.
+						fmt.Println(err)
 						continue
 					}
 
-					eval := evaluate(nextBoard, evaluationDepth, bestEval, maxUtility)
+					eval := ai.evaluate(nextBoard, evaluationDepth, bestEval, maxUtility)
 					if eval > bestEval {
 						bestEval = eval
 						bestMoves = []Move{curMove}
@@ -83,21 +113,22 @@ func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 		}
 	}
 
+	// TODO: this is ugly.
 	if len(bestMoves) == 0 {
-		return fmt.Errorf("AI.DRopSetNext: can not drop tetromino %d", ai.nextTetromino)
+		return fmt.Errorf("AI.DRopSetNext: can not drop tetromino %d", ai.next)
 	}
 
 	move := bestMoves[rand.Intn(len(bestMoves))]
-	if err := ai.board.Drop(ai.nextTetromino, move.rotation, move.column); err != nil {
+	if err := ai.board.Drop(ai.next, move.rotation, move.column); err != nil {
 		return fmt.Errorf("AI.Drop: could not drop: %s", err)
 	}
 
-	ai.nextTetromino = next
+	ai.next = next
 
 	return nil
 }
 
-func evaluate(board *tetris.Board, depth int, alpha, beta float64) float64 {
+func (ai *AI) evaluate(board *tetris.Board, depth int, alpha, beta float64) float64 {
 	if depth < 0 {
 		panic("evaluate: depth should be nonnegative")
 	}
@@ -107,17 +138,18 @@ func evaluate(board *tetris.Board, depth int, alpha, beta float64) float64 {
 	}
 
 	minEval := maxUtility + 1
-	for _, tetromino := range tetris.Tetrominoes() {
+	for _, tetromino := range tetris.Tetrominoes() { // TODO: shuffle tetrominoes?
 		maxEval := minUtility - 1
 		for rotation := 0; rotation < tetromino.RotationsCount(); rotation++ {
-			for column := 0; column < board.Width(); column++ {
+			tetrominoWidth := len(ai.matrices[tetromino][rotation][0])
+			for column := 0; column <= board.Width()-tetrominoWidth; column++ {
 				newBoard := tetris.NewBoardFromBoard(board)
 				if err := newBoard.Drop(tetromino, rotation, column); err != nil {
 					// Invalid column.
 					continue
 				}
 
-				eval := evaluate(newBoard, depth-1, alpha, beta)
+				eval := ai.evaluate(newBoard, depth-1, alpha, beta)
 				maxEval = math.Max(maxEval, eval)
 				alpha = math.Min(alpha, maxEval)
 				if alpha > beta {

@@ -9,10 +9,11 @@ const (
 	defaultBoardHeight = 20
 )
 
-var tetrominoMatrices [][]tetrominoMatrix
+var tetrominoMatrices [][]TetrominoMatrix
 
 func init() {
-	tetrominoMatrices = loadTetrominoMatrices()
+	// Is this a good way to initialize matrices?
+	tetrominoMatrices = TetrominoMatrices()
 }
 
 type Board struct {
@@ -99,7 +100,7 @@ func (b *Board) At(row, col int) Tetromino {
 }
 
 func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
-	if !tetromino.NotEmpty() {
+	if !tetromino.Valid() {
 		panic(fmt.Errorf("Board.Drop: invalid tetromino %d provided", tetromino))
 	}
 
@@ -118,11 +119,10 @@ func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
 	tetrominoMatrix := tetrominoMatrices[tetromino][rotation]
 
 	if !b.isValidColumn(column, tetrominoMatrix) {
-		// TODO panic
-		return fmt.Errorf(
+		panic(fmt.Errorf(
 			"Board.Drop: can not drop: invalid column %d provided for tetromino %s, rotation %d",
 			column, tetromino, rotation,
-		)
+		))
 	}
 
 	// TODO: drop tetrominoes from above the board, add tests for this. Or not?
@@ -187,7 +187,7 @@ func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
 	return nil
 }
 
-func (b *Board) canBePut(tetrominoMatrix tetrominoMatrix, row, col int) bool {
+func (b *Board) canBePut(tetrominoMatrix TetrominoMatrix, row, col int) bool {
 	for i := range tetrominoMatrix {
 		for j := range tetrominoMatrix[i] {
 			if tetrominoMatrix[i][j] {
@@ -245,7 +245,7 @@ func (b *Board) clearFullRows() bool {
 	return someRowsCleared
 }
 
-func (b *Board) isValidColumn(column int, tetrominoMatrix tetrominoMatrix) bool {
+func (b *Board) isValidColumn(column int, tetrominoMatrix TetrominoMatrix) bool {
 	if column < 0 {
 		return false
 	}
