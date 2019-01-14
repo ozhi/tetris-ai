@@ -134,12 +134,12 @@ func (ai *AI) evaluate(board *tetris.Board, depth int, alpha, beta float64) floa
 			for column := 0; column <= board.Width()-tetrominoWidth; column++ {
 				newBoard := tetris.NewBoardFromBoard(board)
 				if err := newBoard.Drop(tetromino, rotation, column); err != nil {
-					// continue // newBoard's game has just ended.
+					// newBoard's game has just ended. Ignore.
 				}
 
 				eval := ai.evaluate(newBoard, depth-1, alpha, beta)
 				maxEval = math.Max(maxEval, eval)
-				alpha = math.Min(alpha, maxEval) // WTF
+				alpha = math.Max(alpha, maxEval)
 				if alpha > beta {
 					break
 				}
