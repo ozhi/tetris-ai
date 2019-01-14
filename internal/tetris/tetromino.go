@@ -101,7 +101,7 @@ type TetrominoMatrix [][]bool
 // The first index corresponds to the type of tetromino.
 // The second index corresponds to its rotation.
 // The zeroth rotation of each tetromino is the one that looks like the letter which describes it.
-// The k+1-th rotation of each tetromino is like its k-th, but rotated 90 degress clockwise.
+// The k+1-th rotation of each tetromino is like its k-th, but rotated 90 degrees clockwise.
 // For example tetrominoMatrices[TetrominoL][2] is the matrix which describes the second rotation of the L tetromino.
 func TetrominoMatrices() [][]TetrominoMatrix {
 	return [][]TetrominoMatrix{

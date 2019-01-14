@@ -20,5 +20,5 @@ func main() {
 		return
 	}
 
-	gui.NewGame().Start()
+	gui.New().Start()
 }
