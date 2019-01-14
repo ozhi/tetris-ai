@@ -13,7 +13,7 @@ import (
 const (
 	minUtility      = -float64(1e5)
 	maxUtility      = float64(1e5)
-	evaluationDepth = 0
+	evaluationDepth = 1
 )
 
 // AI encapsulates the artificial intelligence logic.
@@ -61,7 +61,7 @@ func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 	}
 
 	if ai.board.GameOver() {
-		panic(fmt.Errorf("AI.DropSetNext: can not drop, game is over"))
+		panic(fmt.Errorf("AI.DropSetNext: can not drop tetromino %s, game is already over", ai.next))
 	}
 
 	type Move struct {
@@ -84,10 +84,7 @@ func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 
 			curBoard := tetris.NewBoardFromBoard(ai.board)
 			if err := curBoard.Drop(ai.next, curRot, curCol); err != nil {
-				// Column is invalid?
-				// TODO board.drop will not return error anymore.
-				fmt.Println(err)
-				continue
+				continue // curBoard's game has just ended.
 			}
 
 			for nextRot := 0; nextRot < next.RotationsCount(); nextRot++ {
@@ -95,10 +92,7 @@ func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 				for nextCol := 0; nextCol <= ai.board.Width()-nextWidth; nextCol++ {
 					nextBoard := tetris.NewBoardFromBoard(curBoard)
 					if err := nextBoard.Drop(next, nextRot, nextCol); err != nil {
-						// Column is invalid?
-						// TODO board.drop will not return error anymore.
-						fmt.Println(err)
-						continue
+						continue // curBoard's game has just ended.
 					}
 
 					eval := ai.evaluate(nextBoard, evaluationDepth, bestEval, maxUtility)
@@ -113,14 +107,13 @@ func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 		}
 	}
 
-	// TODO: this is ugly.
 	if len(bestMoves) == 0 {
-		return fmt.Errorf("AI.DRopSetNext: can not drop tetromino %d", ai.next)
+		return fmt.Errorf("AI.DropSetNext: can not drop tetromino %s, all moves lead to game over", ai.next)
 	}
 
 	move := bestMoves[rand.Intn(len(bestMoves))]
 	if err := ai.board.Drop(ai.next, move.rotation, move.column); err != nil {
-		return fmt.Errorf("AI.Drop: could not drop: %s", err)
+		return fmt.Errorf("AI.Drop: could not drop: %s", err) // TODO: whats this error?
 	}
 
 	ai.next = next
@@ -129,10 +122,6 @@ func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 }
 
 func (ai *AI) evaluate(board *tetris.Board, depth int, alpha, beta float64) float64 {
-	if depth < 0 {
-		panic("evaluate: depth should be nonnegative")
-	}
-
 	if depth == 0 || board.GameOver() {
 		return utility(board)
 	}
@@ -145,13 +134,12 @@ func (ai *AI) evaluate(board *tetris.Board, depth int, alpha, beta float64) floa
 			for column := 0; column <= board.Width()-tetrominoWidth; column++ {
 				newBoard := tetris.NewBoardFromBoard(board)
 				if err := newBoard.Drop(tetromino, rotation, column); err != nil {
-					// Invalid column.
-					continue
+					// continue // newBoard's game has just ended.
 				}
 
 				eval := ai.evaluate(newBoard, depth-1, alpha, beta)
 				maxEval = math.Max(maxEval, eval)
-				alpha = math.Min(alpha, maxEval)
+				alpha = math.Min(alpha, maxEval) // WTF
 				if alpha > beta {
 					break
 				}

@@ -120,7 +120,8 @@ func (b *Board) At(row, col int) Tetromino {
 }
 
 // Drop drops a specified rotation of a tetromino such that the leftmost cell is in the given column.
-// Drop panics if the given tetromino, rotation or column are invalid.
+// Drop returns error if tetromino is dropped, but that leads to game over.
+// Drop panics if the given tetromino, rotation or column are invalid or if the board's game is already over.
 func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
 	if !tetromino.Valid() {
 		panic(fmt.Errorf("Board.Drop: invalid tetromino %d provided", tetromino))
@@ -134,8 +135,7 @@ func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
 	}
 
 	if b.gameOver {
-		// TODO: panic
-		return fmt.Errorf("Board.Drop: can not drop: game is over")
+		panic(fmt.Errorf("Board.Drop: can not drop: game is over"))
 	}
 
 	tetrominoMatrix := tetrominoMatrices[tetromino][rotation]
@@ -147,8 +147,6 @@ func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
 		))
 	}
 
-	// TODO: drop tetrominoes from above the board, add tests for this. Or not?
-
 	if !b.canBePut(tetrominoMatrix, 0, column) {
 		b.gameOver = true
 		for i := range tetrominoMatrix {
@@ -158,9 +156,7 @@ func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
 				}
 			}
 		}
-		return nil
-		// TODO panic
-		// return fmt.Errorf("Board.Drop: tetromino dropped, game is over")
+		return fmt.Errorf("Board.Drop: the game just ended.")
 	}
 
 	var row int

@@ -262,8 +262,7 @@ func (gui *GUI) dropRandomTetrominoes() {
 		}
 
 		if err := gui.ai.DropSetNext(gui.nextTetromino); err != nil {
-			// TODO this will not return error.
-			fmt.Printf("Can not drop tetromino %d", gui.nextTetromino)
+			fmt.Printf("AI could not drop tetromino: %s", err)
 			break
 		}
 		gui.nextTetromino = tetris.RandomTetromino()
