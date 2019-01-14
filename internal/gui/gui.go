@@ -27,7 +27,8 @@ type GUI struct {
 	ai            *ai.AI
 	nextTetromino tetris.Tetromino
 
-	automaticMode bool
+	automaticMode         bool
+	automaticModeTurnedOn chan struct{}
 
 	visualization *visualizationDetails
 }
@@ -62,12 +63,20 @@ func New() *GUI {
 	}
 
 	ai := ai.New()
-	ai.SetNext(tetris.RandomTetromino())
 
-	return &GUI{
+	gui := GUI{
 		ai:            ai,
+		nextTetromino: tetris.RandomTetromino(),
+
+		automaticMode:         false,
+		automaticModeTurnedOn: make(chan struct{}),
+
 		visualization: &visualization,
 	}
+
+	ai.SetNext(gui.nextTetromino)
+
+	return &gui
 }
 
 // Start starts the AI's game and the visualization loop.
@@ -95,15 +104,19 @@ func (gui *GUI) Start() {
 	}
 }
 
+// update updates the state of the GUI according to user input.
 func (gui *GUI) update() {
 	if inpututil.IsKeyJustReleased(ebiten.KeyA) {
 		gui.automaticMode = !gui.automaticMode
+		if gui.automaticMode {
+			gui.automaticModeTurnedOn <- struct{}{}
+		}
 	}
 
 	if !gui.automaticMode {
 		if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
-			gui.ai.DropSetNext(gui.nextTetromino)
 			gui.nextTetromino = tetris.RandomTetromino()
+			gui.ai.DropSetNext(gui.nextTetromino)
 		}
 	}
 }
@@ -196,12 +209,21 @@ func (gui *GUI) infoImage() *ebiten.Image {
 		ebiten.FilterDefault)
 	_ = image.Fill(gui.visualization.sidebarBackground)
 
+	automaticMode := "off"
+	if gui.automaticMode {
+		automaticMode = "on"
+	}
+
 	infos := []string{
 		fmt.Sprintf("Tetrominoes: %d", gui.ai.Board().DroppedTetrominoes()),
 		fmt.Sprintf("Lines: %d", gui.ai.Board().ClearedLines()),
 		"",
-		"<a> - automatic mode",
-		"<space> - drop next",
+
+		fmt.Sprintf("Automatic mode: %s", automaticMode),
+		"(press A)",
+		"",
+
+		"Drop next (press space)",
 	}
 
 	for i := range infos {
@@ -232,27 +254,22 @@ func (gui *GUI) draw(screen *ebiten.Image) {
 
 // dropRandomTetrominoes generates random tetrominoes and tells the AI to drop them.
 func (gui *GUI) dropRandomTetrominoes() {
-	gui.nextTetromino = tetris.RandomTetromino()
-	gui.ai.SetNext(gui.nextTetromino)
+	for {
+		// time.Sleep(100 * time.Millisecond)
 
-	// for {
-	// 	// time.Sleep(100 * time.Millisecond)
+		if !gui.automaticMode {
+			<-gui.automaticModeTurnedOn
+		}
 
-	// 	if !gui.automaticMode {
-	// 		// TODO: fix govnokod.
-	// 		time.Sleep(time.Second)
-	// 		continue
-	// 	}
+		if err := gui.ai.DropSetNext(gui.nextTetromino); err != nil {
+			// TODO this will not return error.
+			fmt.Printf("Can not drop tetromino %d", gui.nextTetromino)
+			break
+		}
+		gui.nextTetromino = tetris.RandomTetromino()
 
-	// 	if err := gui.ai.DropSetNext(gui.nextTetromino); err != nil {
-	// 		// TODO this will not return error.
-	// 		fmt.Printf("Can not drop tetromino %d", gui.nextTetromino)
-	// 		break
-	// 	}
-	// 	gui.nextTetromino = tetris.RandomTetromino()
-
-	// 	// fmt.Printf("Dropped tetrominoes: %d, Cleared lines: %d\n", g.ai.Board().DroppedTetrominoes(), g.ai.Board().ClearedLines())
-	// }
+		// fmt.Printf("Dropped tetrominoes: %d, Cleared lines: %d\n", g.ai.Board().DroppedTetrominoes(), g.ai.Board().ClearedLines())
+	}
 }
 
 // visualizationDetails are details for visualizing the tetris game on the screen.

@@ -13,7 +13,7 @@ import (
 const (
 	minUtility      = -float64(1e5)
 	maxUtility      = float64(1e5)
-	evaluationDepth = 1
+	evaluationDepth = 0
 )
 
 // AI encapsulates the artificial intelligence logic.
