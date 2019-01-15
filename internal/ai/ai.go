@@ -53,6 +53,7 @@ func (ai *AI) SetNext(next tetris.Tetromino) {
 
 // DropSetNext drops the next tetromino and sets the given tetromino as next.
 // The given next tetromino is taken into consideration.
+// DropSetNext returns error if the tetromino is dropped but that leads to game over.
 // DropSetNext panics if the given tetromino is empty or not valid.
 // DropSetNext panics if the board is already i game over state. // TODO board should not have such a state.
 func (ai *AI) DropSetNext(next tetris.Tetromino) error {

@@ -16,7 +16,7 @@ func init() {
 
 func main() {
 	if useCli {
-		cli.NewGame().Start()
+		cli.New().Start()
 		return
 	}
 
