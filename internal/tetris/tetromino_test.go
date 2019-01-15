@@ -20,12 +20,12 @@ func TestTetrominoes(t *testing.T) {
 	assert.Equal(t, []tetris.Tetromino{1, 2, 3, 4, 5, 6, 7}, tetris.Tetrominoes())
 }
 
-func TestTetrominoNotEmpty(t *testing.T) {
-	assert.False(t, tetris.Tetromino(-1).NotEmpty())
-	assert.False(t, tetris.Tetromino(tetris.TetrominoesCount+1).NotEmpty())
+func TestTetrominoValid(t *testing.T) {
+	assert.False(t, tetris.Tetromino(-1).Valid())
+	assert.False(t, tetris.Tetromino(tetris.TetrominoesCount+1).Valid())
 
-	assert.False(t, tetris.TetrominoEmpty.NotEmpty())
+	assert.False(t, tetris.TetrominoEmpty.Valid())
 	for _, tetromino := range tetris.Tetrominoes() {
-		assert.True(t, tetromino.NotEmpty())
+		assert.True(t, tetromino.Valid())
 	}
 }
