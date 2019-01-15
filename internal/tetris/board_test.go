@@ -1,6 +1,7 @@
 package tetris_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/ozhi/tetris-ai/internal/tetris"
@@ -22,6 +23,17 @@ type Move struct {
 	tetromino tetris.Tetromino
 	rotation  int
 	column    int
+}
+
+func ExampleBoard() {
+	board := tetris.NewBoard()
+	board.Drop(tetris.TetrominoJ, 1, 0)
+	board.Drop(tetris.TetrominoJ, 1, 3)
+	board.Drop(tetris.TetrominoO, 0, 6)
+	board.Drop(tetris.TetrominoL, 0, 8)
+
+	fmt.Println(board.ClearedLines())
+	// Output: 1
 }
 
 func TestBoardSize(t *testing.T) {
@@ -110,7 +122,8 @@ func TestBoardDropPanicsOnInvalidRotation(t *testing.T) {
 	}
 }
 
-func TestBoardDropClearesMultipleLines(t *testing.T) {
+// TODO add more tests for Drop
+func TestBoardDropClearsMultipleLines(t *testing.T) {
 	board := tetris.NewBoard()
 	moves := []Move{
 		{tetromino: tetris.TetrominoJ, rotation: 1, column: 0},
@@ -188,55 +201,3 @@ func TestBoardAtNumbersCellsFromTopLeft(t *testing.T) {
 	assert.Equal(t, Empty, board.At(14, 4))
 	assert.Equal(t, Empty, board.At(15, 6))
 }
-
-// func clearLineMoves() []Move {
-// 	return []Move{
-// 		Move{tetris.TetrominoI, 1, 0},
-// 		Move{tetris.TetrominoI, 1, 5},
-// 		Move{tetris.TetrominoT, 1, 8},
-// 		Move{tetris.TetrominoJ, 3, 2},
-// 	}
-// }
-
-// func dropFromTopToBottomMoves() []Move {
-// 	return []Move{
-// 		Move{tetris.TetrominoI, 0, 4},
-// 		Move{tetris.TetrominoI, 0, 8},
-// 		Move{tetris.TetrominoI, 1, 4},
-// 		Move{tetris.TetrominoO, 0, 5},
-// 	}
-// }
-
-// func randomMoves() []Move {
-// 	var moves []Move
-// 	for i := 0; i < 20; i++ {
-// 		move := Move{
-// 			tetromino: tetris.Tetromino(1 + rand.Intn(7)),
-// 		}
-
-// 		var possibleRotations int
-// 		switch move.tetromino {
-// 		case tetris.TetrominoI:
-// 			possibleRotations = 2
-// 		case tetris.TetrominoJ:
-// 			possibleRotations = 4
-// 		case tetris.TetrominoL:
-// 			possibleRotations = 4
-// 		case tetris.TetrominoO:
-// 			possibleRotations = 1
-// 		case tetris.TetrominoS:
-// 			possibleRotations = 2
-// 		case tetris.TetrominoT:
-// 			possibleRotations = 4
-// 		case tetris.TetrominoZ:
-// 			possibleRotations = 2
-// 		}
-
-// 		move.rotation = rand.Intn(possibleRotations)
-
-// 		move.column = rand.Intn(8)
-
-// 		moves = append(moves, move)
-// 	}
-// 	return moves
-// }
