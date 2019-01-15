@@ -239,7 +239,7 @@ func (b *Board) isFullRow(row int) bool {
 }
 
 // clearFullRows traverses the board and clears any full rows.
-// The rows above are then shifted down and the board is filled with emoty rows at the top.
+// The rows above are then shifted down and the board is filled with empty rows at the top.
 // clearFullRows returns true if at least one row was cleared.
 func (b *Board) clearFullRows() bool {
 	var (

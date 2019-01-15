@@ -1,3 +1,4 @@
+// Package ai contains artificial intelligence that plays tetris.
 package ai
 
 import (

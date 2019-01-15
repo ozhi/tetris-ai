@@ -1,3 +1,4 @@
+// Package cli contains the command-line interface of Tetris-AI.
 package cli
 
 import (

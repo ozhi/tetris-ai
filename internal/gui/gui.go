@@ -1,3 +1,4 @@
+// Package gui contains the graphical user interface of Tetris-AI.
 package gui
 
 import (
@@ -120,27 +121,6 @@ func (gui *GUI) update() {
 		}
 	}
 }
-
-/* func nextTetromino() (tetromino tetris.Tetromino, ok bool) {
-	switch {
-	case inpututil.IsKeyJustReleased(ebiten.KeyI):
-		tetromino = tetris.TetrominoI
-	case inpututil.IsKeyJustReleased(ebiten.KeyJ):
-		tetromino = tetris.TetrominoJ
-	case inpututil.IsKeyJustReleased(ebiten.KeyL):
-		tetromino = tetris.TetrominoL
-	case inpututil.IsKeyJustReleased(ebiten.KeyO):
-		tetromino = tetris.TetrominoO
-	case inpututil.IsKeyJustReleased(ebiten.KeyS):
-		tetromino = tetris.TetrominoS
-	case inpututil.IsKeyJustReleased(ebiten.KeyT):
-		tetromino = tetris.TetrominoT
-	case inpututil.IsKeyJustReleased(ebiten.KeyZ):
-		tetromino = tetris.TetrominoZ
-	}
-
-	return tetromino, tetromino != tetris.TetrominoEmpty
-} */
 
 // boardImage creates the image of the tetris board.
 func (gui *GUI) boardImage() *ebiten.Image {
