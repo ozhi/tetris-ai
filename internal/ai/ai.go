@@ -56,7 +56,7 @@ func (ai *AI) SetNext(next tetris.Tetromino) {
 // The given next tetromino is taken into consideration.
 // DropSetNext returns error if the tetromino is dropped but that leads to game over.
 // DropSetNext panics if the given tetromino is empty or not valid.
-// DropSetNext panics if the board is already i game over state.
+// DropSetNext panics if the board is already in game over state.
 func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 	if !next.Valid() {
 		panic(fmt.Errorf("Ai.DropSetNext: invalid tetromino %d provided", next))
@@ -115,7 +115,7 @@ func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 
 	move := bestMoves[rand.Intn(len(bestMoves))]
 	if err := ai.board.Drop(ai.next, move.rotation, move.column); err != nil {
-		return fmt.Errorf("AI.Drop: could not drop: %s", err) // TODO: whats this error?
+		return fmt.Errorf("AI.Drop: could not drop: %s", err)
 	}
 
 	ai.next = next
@@ -123,6 +123,10 @@ func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 	return nil
 }
 
+// evaluate returns an evaluation of the given board
+// It uses the minimax algorithm https://en.wikipedia.org/wiki/Minimax
+// with alpha-beta pruning and maximum depth.
+// Returned evaluation is in the range [minUtility; maxUtility] and greater means more desirable for the AI.
 func (ai *AI) evaluate(board *tetris.Board, depth int, alpha, beta float64) float64 {
 	if depth == 0 || board.GameOver() {
 		return utility(board)
@@ -157,7 +161,8 @@ func (ai *AI) evaluate(board *tetris.Board, depth int, alpha, beta float64) floa
 	return minEval
 }
 
-// bigger is better
+// utility returns a heuristical evaluation of the given board in the range [minUtility; maxUtility].
+// Greater utility means more desirable board for the AI.
 func utility(board *tetris.Board) float64 {
 	if board.GameOver() {
 		return minUtility

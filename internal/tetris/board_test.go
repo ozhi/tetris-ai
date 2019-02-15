@@ -151,13 +151,12 @@ func TestBoardDropKeepsStatistics(t *testing.T) {
 
 	for _, move := range moves {
 		err := board.Drop(move.tetromino, move.rotation, move.column)
-		fmt.Println(board.ColumnHeights())
 		assert.Nil(t, err)
 	}
 
 	assert.Equal(t, 2, board.ClearedLines())
-	assert.Equal(t, []int{2, 2, 2, 1, 1, 2, 0, 0, 0, 0}, board.ColumnHeights())
-	assert.Equal(t, []int{0, 1, 1, 0, 0, 0, 0, 0, 0, 0}, board.ColumnHoles())
+	assert.Equal(t, []int{2, 2, 2, 1, 1, 2, 0, 0, 0, 0}, board.HeightsByColumn())
+	assert.Equal(t, []int{0, 1, 1, 0, 0, 0, 0, 0, 0, 0}, board.HolesByColumn())
 }
 
 func TestBoardDropClearsMultipleLines(t *testing.T) {

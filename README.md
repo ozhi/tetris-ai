@@ -1,15 +1,30 @@
 # tetris-ai
 An algorithm that plays [Tetris](https://en.wikipedia.org/wiki/Tetris) better that you, visualized.
 
+Watch as the AI drops **a few dozen** tetrominoes per second!
+* Based on [Minimax](https://en.wikipedia.org/wiki/Minimax)
+* Supports GUI and CLI
+
+Supports easy extending with
+* different user interfaces
+* different AI algorithms
+
 ## Installation
 
-### OS X
-```
-go get github.com/ozhi/tetris-ai
-```
-
-### Linux
-```
+<table>
+  <thead>
+    <tr>
+      <td>OS X</td>
+      <td>Linux</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <pre lang="sh">go get github.com/ozhi/tetris-ai</pre>
+      </td>
+      <td>
+        <pre lang="ah">
 sudo apt install \
   libglu1-mesa-dev \
   libgles2-mesa-dev \
@@ -19,23 +34,20 @@ sudo apt install \
   libxi-dev \
   libasound2-dev
 
-go get github.com/ozhi/tetris-ai
-```
+go get github.com/ozhi/tetris-ai</pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 
 ## Running
 
-* With GUI: `go run main.go`
-
-  ![screenshot-gui.png](screenshot-gui.png)
-
-  You can watch as the AI plays and counts the number of lines cleared and tetrominoes dropped.
-
-  Press `A` to toggle automatic dropping of tetrominoes and
-  `<space>` to drop next tetromino in manual mode.
-
-* With command-line interface: `go run main.go -cli`
-
-  ![screenshot-cli.png](screenshot-cli.png)
+|                    GUI                      |                     CLI                   |
+|:-------------------------------------------:|:-----------------------------------------:|
+| `go run main.go`                            |           `go run main.go -cli`           |
+| ![screenshot-gui.png](screenshot-gui.png)   | ![screenshot-cli.png](screenshot-cli.png) |
+| `<space>` - drop next, `A` - automatic mode | Boring, but simple!                       |
 
 ## Documentation
 
