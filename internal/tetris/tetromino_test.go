@@ -23,8 +23,8 @@ func TestTetrominoes(t *testing.T) {
 func TestTetrominoValid(t *testing.T) {
 	assert.False(t, tetris.Tetromino(-1).Valid())
 	assert.False(t, tetris.Tetromino(tetris.TetrominoesCount+1).Valid())
-
 	assert.False(t, tetris.TetrominoEmpty.Valid())
+
 	for _, tetromino := range tetris.Tetrominoes() {
 		assert.True(t, tetromino.Valid())
 	}

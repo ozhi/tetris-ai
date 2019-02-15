@@ -11,17 +11,16 @@ const (
 )
 
 // tetrominoMatrices is the slice of matrices for each rotation of each tetromino.
-// tetrominoMatrices is a global variable because it is shared between all boards.
-// TODO: Is there a more elegant way to do this?
+// tetrominoMatrices is read-only, shared by all boards.
 var tetrominoMatrices [][]TetrominoMatrix
 
 func init() {
 	tetrominoMatrices = TetrominoMatrices()
 }
 
-// Board is a tetris Board.
+// Board is a tetris board.
 // Board allows dropping tetrominoes and keeps statistics about the game so far and the current state.
-// The zero value of Board is not usable, a new board must be created with the NewBoard method.
+// The zero value of Board is not usable, NewBoard or NewBoardFromBoard should be used to create a Board.
 type Board struct {
 	width  int
 	height int
@@ -38,7 +37,7 @@ type Board struct {
 	holes              []int
 }
 
-// NewBoard returns a pointer to a new Board.
+// NewBoard creates a new, empty Board.
 func NewBoard() *Board {
 	board := Board{
 		width:         defaultBoardWidth,
@@ -55,7 +54,7 @@ func NewBoard() *Board {
 	return &board
 }
 
-// NewBoardFromBoard returns a pointer to an independent copy of the given board.
+// NewBoardFromBoard creates an independent copy of the given board.
 func NewBoardFromBoard(other *Board) *Board {
 	board := *other
 
@@ -94,15 +93,17 @@ func (b *Board) ClearedLines() int {
 	return b.clearedLines
 }
 
-// DroppedTetrominoes returns the number of tetrominoes that have been dropped on the given board.
+// DroppedTetrominoes returns the number of tetrominoes that have been dropped in the given board.
 func (b *Board) DroppedTetrominoes() int {
 	return b.droppedTetrominoes
 }
 
+// ColumnHeights returns a slice of the heights of all of the board's columns.
 func (b *Board) ColumnHeights() []int {
 	return b.columnHeights
 }
 
+// ColumnHoles returns a slice of the number of holes in each of the board's columns.
 func (b *Board) ColumnHoles() []int {
 	return b.holes
 }
@@ -176,11 +177,12 @@ func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
 	}
 
 	b.droppedTetrominoes++
-	someRowsCleared := b.clearFullRows()
+	rowsCleared := b.clearFullRows()
 
+	// Statistics will only be recalculated for columns [fromCol; toCol).
 	fromCol := 0
 	toCol := b.width
-	if !someRowsCleared {
+	if rowsCleared == 0 {
 		fromCol = column
 		toCol = column + len(tetrominoMatrix[0])
 	}
@@ -205,8 +207,8 @@ func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
 	return nil
 }
 
-// canBePut returns true if the given tetromino matrix's can be put on the board
-// with its top left cell at coordinates row, col.
+// canBePut returns true if the given tetromino matrix can be put on the board
+// with its top left cell at coordinates (row, col).
 // If the matrix sticks out of the board or overlaps a non-empty cell on the board, false is returned.
 func (b *Board) canBePut(tetrominoMatrix TetrominoMatrix, row, col int) bool {
 	for i := range tetrominoMatrix {
@@ -227,7 +229,6 @@ func (b *Board) isValidCell(row, col int) bool {
 		0 <= col && col < b.width
 }
 
-// isValidCell returns true if the given coordinates are valid for the board.
 // isFullRow returns true if all of the cells in the given row of the board are non-empty.
 func (b *Board) isFullRow(row int) bool {
 	for _, cell := range b.cells[row] {
@@ -240,16 +241,16 @@ func (b *Board) isFullRow(row int) bool {
 
 // clearFullRows traverses the board and clears any full rows.
 // The rows above are then shifted down and the board is filled with empty rows at the top.
-// clearFullRows returns true if at least one row was cleared.
-func (b *Board) clearFullRows() bool {
+// clearFullRows returns the number of rows cleared.
+func (b *Board) clearFullRows() int {
 	var (
-		someRowsCleared = false
-		idxFrom         = b.height - 1
-		idxTo           = b.height - 1
+		rowsCleared = 0
+		idxFrom     = b.height - 1
+		idxTo       = b.height - 1
 	)
 	for idxTo >= 0 {
 		if idxFrom < 0 {
-			// Insert a new empty rows.
+			// Insert a new empty row.
 			b.cells[idxTo] = make([]Tetromino, b.width)
 			idxTo--
 			continue
@@ -258,7 +259,7 @@ func (b *Board) clearFullRows() bool {
 		if b.isFullRow(idxFrom) {
 			// Full rows are cleared.
 			b.clearedLines++
-			someRowsCleared = true
+			rowsCleared++
 			idxFrom--
 			continue
 		}
@@ -269,5 +270,5 @@ func (b *Board) clearFullRows() bool {
 		idxTo--
 	}
 
-	return someRowsCleared
+	return rowsCleared
 }

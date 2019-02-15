@@ -9,7 +9,7 @@ import (
 const TetrominoesCount = 7
 
 // Tetromino is a type of tetromino - I, J, L, O, S, T or Z without any rotation specified.
-// The zero value of the the is the empty tetromino, which is not valid for use in most cases.
+// The zero value of the type is the empty tetromino, which is not valid for use in most cases.
 type Tetromino int
 
 // The only valid values for a tetromino I, J, L, O, S, T or Z and the zero value of the type - empty.
@@ -64,7 +64,7 @@ func (t Tetromino) String() string {
 	case TetrominoZ:
 		return "Z"
 	default:
-		panic(fmt.Errorf("Tetromno.String: invalid tetromino %d provided", t))
+		panic(fmt.Errorf("Tetromino.String: invalid tetromino %d provided", t))
 	}
 }
 
@@ -75,8 +75,8 @@ func (t Tetromino) Valid() bool {
 }
 
 // RotationsCount returns the number of different rotations for the given tetromino.
-// J, L and T have 4 rotations, I, S and Z have 2 and O has 1.RotationsCount
-// The method panics if called on an empty or invalid tetromino.
+// J, L and T have 4 rotations, I, S and Z have 2 and O has 1.
+// RotationsCount panics if called on an empty or invalid tetromino.
 func (t Tetromino) RotationsCount() int {
 	switch t {
 	case TetrominoJ, TetrominoL, TetrominoT:
@@ -92,9 +92,8 @@ func (t Tetromino) RotationsCount() int {
 
 // TetrominoMatrix is a description of some rotation of some tetromino in 2D space.
 // A cell in the matrix is true only if the corresponding cell is occupied.
-// A TetrominoMatrix must be recangular - all rows must be of the same length.
-// A TetrominoMatrix must be as small as possible - no empty columns on the left or right and
-// no empty rows on the top ot bottom.
+// A TetrominoMatrix is recangular - all rows must be of the same length.
+// A TetrominoMatrix is as small as possible - no empty columns or rows.
 type TetrominoMatrix [][]bool
 
 // TetrominoMatrices returns a two-dimensional slice of tetromino matrices.

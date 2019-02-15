@@ -23,7 +23,7 @@ func init() {
 
 // GUI is the graphical user interface of Tetris-AI.
 // GUI encapsulates an AI that plays tetris and visualization logic.
-// The zero value of GUI is not usable, method New should be used.
+// The zero value of GUI is not usable, function New should be used to create one.
 type GUI struct {
 	ai            *ai.AI
 	nextTetromino tetris.Tetromino
@@ -81,7 +81,7 @@ func New() *GUI {
 }
 
 // Start starts the AI's game and the visualization loop.
-func (gui *GUI) Start() {
+func (gui *GUI) Start() error {
 	update := func(screen *ebiten.Image) error {
 		gui.update()
 
@@ -92,7 +92,7 @@ func (gui *GUI) Start() {
 		return nil
 	}
 
-	go gui.dropRandomTetrominoes()
+	go gui.automaticallyDropTetrominoes()
 
 	err := ebiten.Run(
 		update,
@@ -101,8 +101,10 @@ func (gui *GUI) Start() {
 		gui.visualization.scale,
 		gui.visualization.windowTitle)
 	if err != nil {
-		panic(fmt.Errorf("gui.Start: could not start GUI: %s", err))
+		return fmt.Errorf("gui.Start: could not start GUI: %s", err)
 	}
+
+	return nil
 }
 
 // update updates the state of the GUI according to user input.
@@ -120,6 +122,25 @@ func (gui *GUI) update() {
 			gui.ai.DropSetNext(gui.nextTetromino)
 		}
 	}
+}
+
+// draw draws all images on the screen.
+func (gui *GUI) draw(screen *ebiten.Image) {
+	_ = screen.DrawImage(gui.boardImage(), &ebiten.DrawImageOptions{})
+
+	nextTetromino := gui.nextTetrominoImage()
+	nextTetrominoOptions := ebiten.DrawImageOptions{}
+	nextTetrominoOptions.GeoM.Reset()
+	nextTetrominoOptions.GeoM.Translate(float64(gui.visualization.boardWidth), 0)
+	_ = screen.DrawImage(nextTetromino, &nextTetrominoOptions)
+	nextTetromino.Dispose()
+
+	info := gui.infoImage()
+	infoOptions := ebiten.DrawImageOptions{}
+	infoOptions.GeoM.Reset()
+	infoOptions.GeoM.Translate(float64(gui.visualization.boardWidth), float64(gui.visualization.sidebarWidth))
+	_ = screen.DrawImage(info, &infoOptions)
+	info.Dispose()
 }
 
 // boardImage creates the image of the tetris board.
@@ -203,7 +224,8 @@ func (gui *GUI) infoImage() *ebiten.Image {
 		"(press A)",
 		"",
 
-		"Drop next (press space)",
+		"Drop next",
+		"(press space)",
 	}
 
 	for i := range infos {
@@ -213,27 +235,9 @@ func (gui *GUI) infoImage() *ebiten.Image {
 	return image
 }
 
-// draw draws all images on the screen.
-func (gui *GUI) draw(screen *ebiten.Image) {
-	_ = screen.DrawImage(gui.boardImage(), &ebiten.DrawImageOptions{})
-
-	nextTetromino := gui.nextTetrominoImage()
-	nextTetrominoOptions := ebiten.DrawImageOptions{}
-	nextTetrominoOptions.GeoM.Reset()
-	nextTetrominoOptions.GeoM.Translate(float64(gui.visualization.boardWidth), 0)
-	_ = screen.DrawImage(nextTetromino, &nextTetrominoOptions)
-	nextTetromino.Dispose()
-
-	info := gui.infoImage()
-	infoOptions := ebiten.DrawImageOptions{}
-	infoOptions.GeoM.Reset()
-	infoOptions.GeoM.Translate(float64(gui.visualization.boardWidth), float64(gui.visualization.sidebarWidth))
-	_ = screen.DrawImage(info, &infoOptions)
-	info.Dispose()
-}
-
-// dropRandomTetrominoes generates random tetrominoes and tells the AI to drop them.
-func (gui *GUI) dropRandomTetrominoes() {
+// automaticallyDropTetrominoes generates random tetrominoes and tells the AI to drop them.
+// Only does so in automatic mode is set, otherwise blocks on the gui.automaticModeTurnedOn channel.
+func (gui *GUI) automaticallyDropTetrominoes() {
 	for {
 		// time.Sleep(100 * time.Millisecond)
 
@@ -246,8 +250,6 @@ func (gui *GUI) dropRandomTetrominoes() {
 			break
 		}
 		gui.nextTetromino = tetris.RandomTetromino()
-
-		// fmt.Printf("Dropped tetrominoes: %d, Cleared lines: %d\n", g.ai.Board().DroppedTetrominoes(), g.ai.Board().ClearedLines())
 	}
 }
 
@@ -292,7 +294,7 @@ func loadTetrominoMatrices() map[tetris.Tetromino]tetris.TetrominoMatrix {
 	matrices := tetris.TetrominoMatrices()
 
 	for _, tetromino := range tetris.Tetrominoes() {
-		// The next tetromino will be displayed as its zeroth rotation.
+		// The zeroth rotation of the next tetromino is displayed.
 		tm[tetromino] = matrices[tetromino][0]
 	}
 

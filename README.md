@@ -1,12 +1,14 @@
 # tetris-ai
 An algorithm that plays [Tetris](https://en.wikipedia.org/wiki/Tetris) better that you, visualized.
 
-:construction: Work in progress :construction:
+## Installation
 
-## Installation (Linux)
+### OS X
+```
+go get github.com/ozhi/tetris-ai
+```
 
-__Note__: Tetris-AI is only tested on Linux. There may be platform-specific issues on Mac and Windows due to the visualization library [ebiten](https://hajimehoshi.github.io/ebiten/).
-
+### Linux
 ```
 sudo apt install \
   libglu1-mesa-dev \
@@ -22,20 +24,18 @@ go get github.com/ozhi/tetris-ai
 
 ## Running
 
-* Graphical user interface: `go run main.go`
+* With GUI: `go run main.go`
 
   ![screenshot-gui.png](screenshot-gui.png)
 
-  You can watch as the AI plays and count number of lines cleared and tetrominoes dropped.
+  You can watch as the AI plays and counts the number of lines cleared and tetrominoes dropped.
 
   Press `A` to toggle automatic dropping of tetrominoes and
   `<space>` to drop next tetromino in manual mode.
 
-* Command-line interface: `go run main.go -cli`
+* With command-line interface: `go run main.go -cli`
 
   ![screenshot-cli.png](screenshot-cli.png)
-
-  You can watch as the AI plays and count the number of lines cleared.
 
 ## Documentation
 
@@ -61,6 +61,7 @@ Tetris-AI has four packages:
   * the aggregated height of the columns (less is better)
   * the 'bumpiness' of the board (difference in column heights) (less is better)
   * the number of 'holes' in the board (less is better)
+
   Each of these is taken with a different coefficient, chosen with trial and error.
 
   In order for the AI to play fast enough (tens of tetrominoes every second),

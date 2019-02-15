@@ -16,7 +16,7 @@ func init() {
 
 // CLI is the command-line interface of Tetris-ai.
 // CLI encapsulates an AI that plays tetris and visualization logic.
-// The zero value of CLI is not usable, method New should be used.
+// The zero value of CLI is not usable, function New should be used to create one.
 type CLI struct {
 	ai *ai.AI
 }
@@ -28,13 +28,14 @@ func New() *CLI {
 	}
 }
 
-// Start starts the AI's game and the visualization loop.
+// Start starts the AI's game.
 func (cli *CLI) Start() {
 	cli.ai.SetNext(tetris.RandomTetromino())
+
 	for {
 		board := cli.ai.Board()
 		printBoard(board)
-		time.Sleep(500 * time.Millisecond)
+		// time.Sleep(100 * time.Millisecond)
 
 		err := cli.ai.DropSetNext(tetris.RandomTetromino())
 		if err != nil {
@@ -48,8 +49,8 @@ func (cli *CLI) Start() {
 
 func printBoard(board *tetris.Board) {
 	const clearScreen = "\033[2J"
-
 	fmt.Println(clearScreen)
+
 	for row := 0; row < board.Height(); row++ {
 		for col := 0; col < board.Width(); col++ {
 			if board.At(row, col) == tetris.TetrominoEmpty {

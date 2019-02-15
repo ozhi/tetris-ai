@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 
 	"github.com/ozhi/tetris-ai/internal/cli"
 	"github.com/ozhi/tetris-ai/internal/gui"
@@ -20,5 +21,8 @@ func main() {
 		return
 	}
 
-	gui.New().Start()
+	err := gui.New().Start()
+	if err != nil {
+		fmt.Println(err)
+	}
 }

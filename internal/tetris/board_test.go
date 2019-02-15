@@ -27,13 +27,14 @@ type Move struct {
 
 func ExampleBoard() {
 	board := tetris.NewBoard()
+
 	board.Drop(tetris.TetrominoJ, 1, 0)
 	board.Drop(tetris.TetrominoJ, 1, 3)
 	board.Drop(tetris.TetrominoO, 0, 6)
 	board.Drop(tetris.TetrominoL, 0, 8)
 
-	fmt.Println(board.ClearedLines())
-	// Output: 1
+	fmt.Println(board.ClearedLines(), board.At(19, 0))
+	// Output: 1 J
 }
 
 func TestBoardSize(t *testing.T) {
@@ -122,7 +123,6 @@ func TestBoardDropPanicsOnInvalidRotation(t *testing.T) {
 	}
 }
 
-// TODO add more tests for Drop
 func TestBoardDropClearsMultipleLines(t *testing.T) {
 	board := tetris.NewBoard()
 	moves := []Move{
