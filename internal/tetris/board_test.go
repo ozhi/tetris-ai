@@ -28,10 +28,10 @@ type Move struct {
 func ExampleBoard() {
 	board := tetris.NewBoard()
 
-	board.Drop(tetris.TetrominoJ, 1, 0)
-	board.Drop(tetris.TetrominoJ, 1, 3)
-	board.Drop(tetris.TetrominoO, 0, 6)
-	board.Drop(tetris.TetrominoL, 0, 8)
+	board.Drop(J, 1, 0)
+	board.Drop(J, 1, 3)
+	board.Drop(O, 0, 6)
+	board.Drop(L, 0, 8)
 
 	fmt.Println(board.ClearedLines(), board.At(19, 0))
 	// Output: 1 J
@@ -45,17 +45,17 @@ func TestBoardSize(t *testing.T) {
 
 func TestNewBoardFromBoardDoesNotShareCellsWithOriginal(t *testing.T) {
 	original := tetris.NewBoard()
-	original.Drop(tetris.TetrominoO, 0, 0)
+	original.Drop(O, 0, 0)
 
 	copy := tetris.NewBoardFromBoard(original)
 
-	assert.Equal(t, original.At(18, 1), tetris.TetrominoO)
-	assert.Equal(t, copy.At(18, 1), tetris.TetrominoO)
+	assert.Equal(t, original.At(18, 1), O)
+	assert.Equal(t, copy.At(18, 1), O)
 
-	original.Drop(tetris.TetrominoO, 0, 0)
+	original.Drop(O, 0, 0)
 
-	assert.Equal(t, original.At(16, 1), tetris.TetrominoO)
-	assert.Equal(t, copy.At(16, 1), tetris.TetrominoEmpty)
+	assert.Equal(t, original.At(16, 1), O)
+	assert.Equal(t, copy.At(16, 1), Empty)
 }
 
 func TestBoardDropPanicsOnInvalidTetromino(t *testing.T) {
@@ -67,8 +67,8 @@ func TestBoardDropPanicsOnInvalidTetromino(t *testing.T) {
 	}{
 		{tetromino: tetris.Tetromino(-1), panics: true},
 		{tetromino: tetris.Tetromino(8), panics: true},
-		{tetromino: tetris.TetrominoEmpty, panics: true},
-		{tetromino: tetris.TetrominoS, panics: false},
+		{tetromino: Empty, panics: true},
+		{tetromino: S, panics: false},
 	}
 
 	for _, test := range tests {
@@ -97,12 +97,12 @@ func TestBoardDropPanicsOnInvalidRotation(t *testing.T) {
 		rotation  int
 		panics    bool
 	}{
-		{tetromino: tetris.TetrominoI, rotation: 1, panics: false},
-		{tetromino: tetris.TetrominoI, rotation: 2, panics: true},
-		{tetromino: tetris.TetrominoJ, rotation: 3, panics: false},
-		{tetromino: tetris.TetrominoJ, rotation: 4, panics: true},
-		{tetromino: tetris.TetrominoO, rotation: 0, panics: false},
-		{tetromino: tetris.TetrominoO, rotation: 1, panics: true},
+		{tetromino: I, rotation: 1, panics: false},
+		{tetromino: I, rotation: 2, panics: true},
+		{tetromino: J, rotation: 3, panics: false},
+		{tetromino: J, rotation: 4, panics: true},
+		{tetromino: O, rotation: 0, panics: false},
+		{tetromino: O, rotation: 1, panics: true},
 	}
 
 	for _, test := range tests {
@@ -123,17 +123,54 @@ func TestBoardDropPanicsOnInvalidRotation(t *testing.T) {
 	}
 }
 
+func TestBoardDropReturnsErrorOnGameOver(t *testing.T) {
+	board := tetris.NewBoard()
+
+	for i := 0; i < 9; i++ {
+		err := board.Drop(T, 0, 4)
+		assert.Nil(t, err)
+	}
+
+	err := board.Drop(L, 0, 3)
+	assert.NotNil(t, err)
+}
+
+func TestBoardDropKeepsStatistics(t *testing.T) {
+	board := tetris.NewBoard()
+
+	moves := []Move{
+		{tetromino: O, rotation: 0, column: 0},
+		{tetromino: O, rotation: 0, column: 2},
+		{tetromino: O, rotation: 0, column: 4},
+		{tetromino: O, rotation: 0, column: 6},
+		{tetromino: O, rotation: 0, column: 8},
+		// 2 cleared lines.
+		{tetromino: L, rotation: 1, column: 0},
+		{tetromino: L, rotation: 3, column: 3},
+	}
+
+	for _, move := range moves {
+		err := board.Drop(move.tetromino, move.rotation, move.column)
+		fmt.Println(board.ColumnHeights())
+		assert.Nil(t, err)
+	}
+
+	assert.Equal(t, 2, board.ClearedLines())
+	assert.Equal(t, []int{2, 2, 2, 1, 1, 2, 0, 0, 0, 0}, board.ColumnHeights())
+	assert.Equal(t, []int{0, 1, 1, 0, 0, 0, 0, 0, 0, 0}, board.ColumnHoles())
+}
+
 func TestBoardDropClearsMultipleLines(t *testing.T) {
 	board := tetris.NewBoard()
 	moves := []Move{
-		{tetromino: tetris.TetrominoJ, rotation: 1, column: 0},
-		{tetromino: tetris.TetrominoL, rotation: 3, column: 3},
-		{tetromino: tetris.TetrominoZ, rotation: 0, column: 0},
-		{tetromino: tetris.TetrominoT, rotation: 2, column: 2},
-		{tetromino: tetris.TetrominoL, rotation: 2, column: 5},
-		{tetromino: tetris.TetrominoO, rotation: 0, column: 7},
-		{tetromino: tetris.TetrominoZ, rotation: 0, column: 6},
-		{tetromino: tetris.TetrominoI, rotation: 0, column: 9},
+		{tetromino: J, rotation: 1, column: 0},
+		{tetromino: L, rotation: 3, column: 3},
+		{tetromino: Z, rotation: 0, column: 0},
+		{tetromino: T, rotation: 2, column: 2},
+		{tetromino: L, rotation: 2, column: 5},
+		{tetromino: O, rotation: 0, column: 7},
+		{tetromino: Z, rotation: 0, column: 6},
+		{tetromino: I, rotation: 0, column: 9},
 	}
 	for _, move := range moves {
 		board.Drop(move.tetromino, move.rotation, move.column)

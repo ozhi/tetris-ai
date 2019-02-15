@@ -33,17 +33,17 @@ type Board struct {
 
 	clearedLines       int
 	droppedTetrominoes int
-	columnHeights      []int
-	holes              []int
+	heightsByColumn    []int
+	holesByColumn      []int
 }
 
 // NewBoard creates a new, empty Board.
 func NewBoard() *Board {
 	board := Board{
-		width:         defaultBoardWidth,
-		height:        defaultBoardHeight,
-		columnHeights: make([]int, defaultBoardWidth),
-		holes:         make([]int, defaultBoardWidth),
+		width:           defaultBoardWidth,
+		height:          defaultBoardHeight,
+		heightsByColumn: make([]int, defaultBoardWidth),
+		holesByColumn:   make([]int, defaultBoardWidth),
 	}
 
 	board.cells = make([][]Tetromino, board.height)
@@ -64,11 +64,11 @@ func NewBoardFromBoard(other *Board) *Board {
 		copy(board.cells[row], other.cells[row])
 	}
 
-	board.columnHeights = make([]int, other.width)
-	copy(board.columnHeights, other.columnHeights)
+	board.heightsByColumn = make([]int, other.width)
+	copy(board.heightsByColumn, other.heightsByColumn)
 
-	board.holes = make([]int, other.width)
-	copy(board.holes, other.holes)
+	board.holesByColumn = make([]int, other.width)
+	copy(board.holesByColumn, other.holesByColumn)
 
 	return &board
 }
@@ -98,14 +98,14 @@ func (b *Board) DroppedTetrominoes() int {
 	return b.droppedTetrominoes
 }
 
-// ColumnHeights returns a slice of the heights of all of the board's columns.
-func (b *Board) ColumnHeights() []int {
-	return b.columnHeights
+// HeightsByColumn returns a slice of the heights of all of the board's columns.
+func (b *Board) HeightsByColumn() []int {
+	return b.heightsByColumn
 }
 
-// ColumnHoles returns a slice of the number of holes in each of the board's columns.
-func (b *Board) ColumnHoles() []int {
-	return b.holes
+// HolesByColumn returns a slice of the number of holes in each of the board's columns.
+func (b *Board) HolesByColumn() []int {
+	return b.holesByColumn
 }
 
 // At returns the tetromino at the given position of the board.
@@ -192,14 +192,17 @@ func (b *Board) Drop(tetromino Tetromino, rotation int, column int) error {
 			break
 		}
 
+		b.heightsByColumn[col] = 0
+		b.holesByColumn[col] = 0
+
 		inHole := false
-		for row := 0; row < b.height; row++ {
+		for row := range b.cells {
 			if inHole && b.cells[row][col] == TetrominoEmpty {
-				b.holes[col]++
+				b.holesByColumn[col]++
 			}
 			if !inHole && b.cells[row][col] != TetrominoEmpty {
 				inHole = true
-				b.columnHeights[col] = b.height - row
+				b.heightsByColumn[col] = b.height - row
 			}
 		}
 	}

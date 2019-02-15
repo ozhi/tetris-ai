@@ -56,7 +56,7 @@ func (ai *AI) SetNext(next tetris.Tetromino) {
 // The given next tetromino is taken into consideration.
 // DropSetNext returns error if the tetromino is dropped but that leads to game over.
 // DropSetNext panics if the given tetromino is empty or not valid.
-// DropSetNext panics if the board is already i game over state. // TODO board should not have such a state.
+// DropSetNext panics if the board is already i game over state.
 func (ai *AI) DropSetNext(next tetris.Tetromino) error {
 	if !next.Valid() {
 		panic(fmt.Errorf("Ai.DropSetNext: invalid tetromino %d provided", next))
@@ -129,7 +129,7 @@ func (ai *AI) evaluate(board *tetris.Board, depth int, alpha, beta float64) floa
 	}
 
 	minEval := maxUtility + 1
-	for _, tetromino := range tetris.Tetrominoes() { // TODO: shuffle tetrominoes?
+	for _, tetromino := range tetris.Tetrominoes() {
 		maxEval := minUtility - 1
 		for rotation := 0; rotation < tetromino.RotationsCount(); rotation++ {
 			tetrominoWidth := len(ai.matrices[tetromino][rotation][0])
@@ -164,8 +164,8 @@ func utility(board *tetris.Board) float64 {
 	}
 
 	var (
-		columnHeights = board.ColumnHeights()
-		columnHoles   = board.ColumnHoles()
+		columnHeights = board.HeightsByColumn()
+		columnHoles   = board.HolesByColumn()
 
 		heightsSum  int
 		heightsDiff int
