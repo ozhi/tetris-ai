@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          android:versionCode="1" android:versionName="1.0" package="com.ozhi.tetrisai">
+          <!-- Is freetext package name ok? -->
+    <application android:label="Tetris AI">
+        <activity android:label="Tetris AI"
+                  android:name="org.golang.app.GoNativeActivity"
+                  android:configChanges="keyboardHidden|orientation"
+                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                  android:screenOrientation="portrait">
+            <meta-data android:name="android.app.lib_name" android:value="tetrisai" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

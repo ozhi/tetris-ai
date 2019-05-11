@@ -3,7 +3,7 @@ An algorithm that plays [Tetris](https://en.wikipedia.org/wiki/Tetris) better th
 
 Watch as the AI drops **a few dozen** tetrominoes per second!
 * Based on [Minimax](https://en.wikipedia.org/wiki/Minimax)
-* Supports GUI and CLI
+* Supports Android, GUI and CLI.
 
 Supports easy extending with
 * different user interfaces
@@ -43,11 +43,11 @@ go get github.com/ozhi/tetris-ai</pre>
 
 ## Running
 
-|                    GUI                      |                     CLI                   |
-|:-------------------------------------------:|:-----------------------------------------:|
-| `go run main.go`                            |           `go run main.go -cli`           |
-| ![screenshot-gui.png](screenshot-gui.png)   | ![screenshot-cli.png](screenshot-cli.png) |
-| `<space>` - drop next, `A` - automatic mode | Boring, but simple!                       |
+| Android  |                    GUI                      |                     CLI                   |
+|:--------:|:-------------------------------------------:|:-----------------------------------------:|
+| `gomobile build` | `go run main.go` | `go run main.go -cli` |
+| ![screenshot-android.png](screenshot-android.png) | ![screenshot-gui.png](screenshot-gui.png)   | ![screenshot-cli.png](screenshot-cli.png) |
+| Press the buttons | Press the buttons or `<space>` - drop next, `A` - automatic mode | Automatic mode only |
 
 ## Documentation
 
