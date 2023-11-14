@@ -4,7 +4,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/hajimehoshi/ebiten v1.8.1
 	github.com/stretchr/testify v1.3.0
-	golang.org/x/image v0.5.0
+	golang.org/x/image v0.10.0
 )
 
 require (
@@ -16,5 +16,5 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/exp v0.0.0-20180710024300-14dda7b62fcd // indirect
 	golang.org/x/mobile v0.0.0-20180907224111-0ff817254b04 // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
+	golang.org/x/sys v0.5.0 // indirect
 )
